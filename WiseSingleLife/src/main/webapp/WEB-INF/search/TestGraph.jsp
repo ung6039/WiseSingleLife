@@ -290,52 +290,9 @@
 						</td>
 					</tr>		
 				</table>
-<script>
-var ChartProp={"data":{"columns":[["홈플","10"]
-,["${test}","12"]
-,["${test}","11"]
-,["이마트","13"]
-]
-,"type":"bar"}
-,"color":{}
-,"bar":{"width":{"ratio":"0.95"}
-}
-,"pie":{}
-,"donut":{}
-,"legend":{"show":true,"position":"bottom"}
-,"tooltip":{"show":true,"grouped":true}
-,"zoom":{"enabled":false}
-,"transition":{}
-,"point":{"show":true}
-,"axis":{"rotated":false,"x":{"tick":{}
-}
-,"y":{}
-}
-,"grid":{"x":{"show":true}
-,"y":{"show":true}
-}
-,"size":{"width":"500","height":"400"}
-,"padding":{"left":30,"top":30,"bottom":0,"right":0}
-}
-
-window.onload=function(){
-c3.generate(ChartProp);
-var svg = d3.select('svg');
-svg.append('text')
-	.attr('x', parseInt(svg.style('width'))/2)
-	.attr('y', 25)
-	.style({'text-anchor': 'middle', 'font-size': '30px', 'fill':'#000000'})
-	.text('마트 가격비교');
-}
-</script>
 			<div id="chart">
 			</div>
-			<div class="text">
-					${result }
-			</div>
-			<div class="text">
-				${result }
-			</div>
+
 			</div>
 			<!-- 저장한 상품 -->
 			<div class="row">

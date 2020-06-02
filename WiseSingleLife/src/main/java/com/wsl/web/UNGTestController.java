@@ -1,17 +1,26 @@
 package com.wsl.web;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.sampled.AudioFormat.Encoding;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.rosuda.REngine.Rserve.RConnection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.wsl.homeplus.*;
+import com.wsl.product_detail.MartAllDataDAO;
 import com.wsl.search.*;
+
+import junit.framework.Test;
+
+import java.net.URL;
 
 @Controller
 public class UNGTestController {
@@ -20,67 +29,42 @@ public class UNGTestController {
 	private SearchKeywordDAO skdao;
 	@Autowired
 	private HomePlusDAO hpdao;
+	@Autowired
+	private MartAllDataDAO mad_dao;
+	
 	@RequestMapping("graph.do")
 	public String temp(String keyword,Model model){
 		
-		String result="";
-		if(keyword==null){
-			keyword="시금치";
-			result = "NOKEYWORD";
-		}else{
-		SearchKeywordVO vo = skdao.getSearchKeywordVO(keyword);
+		rGraph(keyword);
+		File file = new File(".");
+		String rootPath = String.valueOf(file.getAbsoluteFile());
+		System.out.println("경로 : "+rootPath);
 		
-		List<HomePlusVO> list = new ArrayList<HomePlusVO>();
-		
-		if(vo.getCodeNo()==0) {
-			System.out.println("keyword : " + keyword);
-			System.out.println("==================================");
-			
-			list = hpdao.getHomePlusDataFromMapperByKeyword(keyword);
-			for(HomePlusVO hpvo : list) {
-				System.out.println(hpvo.getRank() + " "+hpvo.getName());
-			}
-			System.out.println("==================================");
-			} else {
-			System.out.println("codeNo : " + vo.getCodeNo());
-			System.out.println("keyword : " + vo.getKeyword());
-			System.out.println("==================================");
-			
-			double average = hpdao.getHomePlusAverageByReviewCount(vo.getCodeNo());
-			
-			list = hpdao.getHomePlusDataFromMapperByCodeNo(vo.getCodeNo());
-			for(HomePlusVO hpvo : list) {
-				
-				System.out.println(hpvo.getRank() + " " + hpvo.getName()+"리뷰숫자 "+hpvo.getReviewcount());
-			}
-			System.out.println("==================================");
-			System.out.println("이 그룹의 평균은 = " + average);
-		}
-		
-			JSONArray arr = new JSONArray();
-			
-			for(HomePlusVO hpvo:list){
-				JSONObject json = new JSONObject();
-				json.put("productcode", hpvo.getProductcode());
-				//json.put("codeno", vo.getCodeNo());
-				json.put("name", hpvo.getName());
-				json.put("price", hpvo.getPrice());
-				json.put("unitprice", hpvo.getUnitprice());
-				json.put("rate", hpvo.getRate());
-				json.put("reviewcount", hpvo.getReviewcount());
-				json.put("lookup", hpvo.getLookup());
-				json.put("lookuptime", hpvo.getLookuptime());
-				json.put("img", hpvo.getImg());
-				
-				arr.add(json);
-			}
-			result = arr.toJSONString();
-			}
-		System.out.println(result);
-		String test="고구마";
-		model.addAttribute("test",test);
-		model.addAttribute("result",result);
 		
 		return "search/TestGraph";
+	}
+	
+	public void rGraph(String keyword){
+		
+		try{
+			RConnection rc = new RConnection();
+			rc.voidEval("library('rJava')");
+			rc.voidEval("library('DBI')");
+			rc.voidEval("library('RJDBC')");
+			rc.voidEval("library('igraph')");
+			rc.voidEval("png(\"C:/Users/sist185/Desktop/res/"+keyword+".png\")");
+			rc.voidEval("drv<-JDBC(\"oracle.jdbc.OracleDriver\")");
+			rc.voidEval("conn<-dbConnect(drv,'jdbc:oracle:thin:@//localhost:1521/XE',\"hr\",\"happy\")");
+			rc.voidEval("data<-dbGetQuery(conn,'select baseprice,rate from coupang')");
+			rc.voidEval("res<-dbGetQuery(conn,'select baseprice,rate from costco')");
+			rc.voidEval("plot(data$BASEPRICE,data$RATE,ylim=c(0,5.0),xlab='price',ylab='rate',main='graph')");
+			rc.voidEval("points(res$BASEPRICE,res$RATE,col='blue')");
+			rc.voidEval("dbDisconnect(conn)");
+			rc.voidEval("dev.off()");
+			rc.close();
+		}catch(Exception ex){
+			System.out.println(ex.getMessage());
+			ex.printStackTrace();
+		}
 	}
 }
