@@ -18,8 +18,6 @@ import com.wsl.homeplus.*;
 import com.wsl.product_detail.MartAllDataDAO;
 import com.wsl.search.*;
 
-import junit.framework.Test;
-
 import java.net.URL;
 
 @Controller
